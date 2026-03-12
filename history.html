@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История замеров</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-blue {
+            background: #3498db;
+            color: white;
+        }
+        .btn-blue:hover {
+            background: #2980b9;
+        }
+        .btn-red {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-red:hover {
+            background: #c0392b;
+        }
+        .btn-yellow {
+            background: #f39c12;
+            color: white;
+        }
+        .btn-yellow:hover {
+            background: #e67e22;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .stats {
+            margin-top: 10px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 История замеров</h1>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Поиск по дате или коэффициенту...">
+            </div>
+            <div>
+                <button class="btn btn-blue" onclick="window.location.href='index.html'">← К калькулятору</button>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Коэффициент Kp</th>
+                    <th>W act (г)</th>
+                    <th>l act (мм)</th>
+                    <th>S act (мм²)</th>
+                    <th>W'' act (г/м)</th>
+                    <th>Смесь</th>
+                    <th>Планка</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        Загрузка данных...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="stats" id="stats"></div>
+    </div>
+
+    <script type="module" src="./js/history.js"></script>
+</body>
+</html>

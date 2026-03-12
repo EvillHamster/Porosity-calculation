@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Управление смесями</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #27ae60;
+      box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+    }
+
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.5;
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #229954;
+    }
+
+    .btn-secondary {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #2980b9;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .btn-icon {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #f8f9fa;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr:hover {
+      background: #f5f5f5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #7f8c8d;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #34495e;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #27ae60;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
+    .stats {
+      margin-top: 1rem;
+      color: #7f8c8d;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="color: #2c3e50; margin: 0;">Управление смесями</h1>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Поиск по названию...">
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <button class="btn btn-primary" onclick="showAddModal()">
+          ➕ Новая смесь
+        </button>
+        <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+          ← На главную
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="compoundsTable">
+        <thead>
+          <tr>
+            <th>Название смеси</th>
+            <th>Плотность (г/мм³)</th>
+            <th>Дата создания</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="4" class="empty-state">
+              Загрузка...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <!-- Модальное окно -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Добавить смесь</h2>
+
+      <div class="form-group">
+        <label>Название смеси *</label>
+        <input type="text" id="modalName" placeholder="Например: T14716">
+      </div>
+
+      <div class="form-group">
+        <label>Плотность (г/мм³) *</label>
+        <input type="number" id="modalDensity" step="0.01" placeholder="Плоность смеси">
+      </div>
+
+      <div id="modalError" class="error-message"></div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-danger" onclick="hideModal()">Отмена</button>
+        <button class="btn btn-primary" onclick="saveCompound()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/compounds.js"></script>
+</body>
+
+</html>

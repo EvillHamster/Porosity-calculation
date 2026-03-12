@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Расчет фактора пористости</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <style>
+    /* Стили для поиска */
+    .searchable-select {
+      position: relative;
+      width: 100%;
+    }
+    
+    .searchable-select input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #b0d4f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+    .searchable-select input:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52,152,219,0.1);
+    }
+    
+    .searchable-select .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 300px;
+      overflow-y: auto;
+      background: white;
+      border: 2px solid #b0d4f0;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .searchable-select .dropdown.show {
+      display: block;
+    }
+    
+    .searchable-select .dropdown-item {
+      padding: 0.8rem;
+      cursor: pointer;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    
+    .searchable-select .dropdown-item:hover {
+      background: #ecf5fd;
+    }
+    
+    .searchable-select .dropdown-item.selected {
+      background: #c1ddf7;
+      font-weight: 500;
+    }
+    
+    .searchable-select .no-results {
+      padding: 1rem;
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+    }
+    
+    /* Карточка с параметрами */
+    .params-card {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #d4e6f1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .params-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    
+    .param-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .param-label {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-bottom: 0.2rem;
+    }
+    
+    .param-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2c3e50;
+      background: #f8f9fa;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .badge-blue {
+      background: #e1f0fa;
+      color: #2980b9;
+    }
+    
+    .badge-green {
+      background: #e1f7e1;
+      color: #27ae60;
+    }
+    
+    .nav-btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .nav-btn.green {
+      background: #27ae60;
+    }
+    
+    .nav-btn.purple {
+      background: #9b59b6;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed #b0d4f0;
+      flex-wrap: wrap;
+    }
+
+    .save-btn {
+      background: #e67e22;
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+    }
+
+    .save-btn:hover {
+      background: #d35400;
+    }
+
+    .footer-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="calculator">
+    <h1 class="total__title">Расчет фактора пористости</h1>
+
+    <!-- БЛОК ВЫБОРА С ПОИСКОМ -->
+    <div class="block" style="background: #f0f7ff; border: 2px solid #3498db;">
+      <p class="title" style="color: #2980b9;">📋 Выбор параметров</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1rem;">
+        <!-- ВЫБОР СМЕСИ С ПОИСКОМ -->
+        <div>
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+            🧪 Смесь (плотность):
+          </label>
+          <div class="searchable-select" id="compoundSearchContainer">
+            <input type="text" id="compoundSearch" placeholder="Поиск смеси..." autocomplete="off">
+            <div class="dropdown" id="compoundDropdown"></div>
+          </div>
+          
+          <!-- Карточка выбранной смеси -->
+          <div id="selectedCompoundCard" class="params-card" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge badge-green">Выбрано</span>
+              <span style="font-weight: 600;" id="selectedCompoundName"></span>
+            </div>
+            <div class="param-item">
+              <span class="param-label">Плотность ρ (г/мм³)</span>
+              <span class="param-value" id="selectedCompoundDensity"></span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ВЫБОР ПЛАНКИ С ПОИСКОМ -->
+        <div>
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+            📏 Планка (геометрия):
+          </label>
+          <div class="searchable-select" id="profileSearchContainer">
+            <input type="text" id="profileSearch" placeholder="Поиск планки..." autocomplete="off">
+            <div class="dropdown" id="profileDropdown"></div>
+          </div>
+          
+          <!-- Карточка выбранной планки с параметрами -->
+          <div id="selectedProfileCard" class="params-card" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge badge-blue">Выбрано</span>
+              <span style="font-weight: 600;" id="selectedProfileName"></span>
+            </div>
+            <div class="params-grid">
+              <div class="param-item">
+                <span class="param-label">S spec (мм²)</span>
+                <span class="param-value" id="selectedProfileSSpec"></span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">S cap (мм²)</span>
+                <span class="param-value" id="selectedProfileSCap"></span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">W cap (г)</span>
+                <span class="param-value" id="selectedProfileWCap"></span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">W spec (г)</span>
+                <span class="param-value" id="selectedProfileWSpec"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Кнопки управления -->
+      <div class="button-group">
+        <a href="compounds.html" class="nav-btn green">🧪 Управление смесями</a>
+        <a href="profiles.html" class="nav-btn">📏 Управление планками</a>
+        <a href="history.html" class="nav-btn purple">📊 История замеров</a>
+      </div>
+    </div>
+
+    <div class="block">
+      <p class="title">1) Фактор пористости</p>
+      <span class="formula__design">K<sub>p</sub> = ρ<sub>экструзии</sub> / ρ<sub>смеси</sub></span>
+      <ul class="list" style="margin-top: 1.5rem;">
+        <li class="list__item"><strong>ρ<sub>смеси</sub></strong> – целевая плотность до экструзии (данные миксинга/лаборатории).</li>
+        <li class="list__item"><strong>ρ<sub>экструзии</sub></strong> – реальная плотность внутри экструдированного компонента (после экструзии).</li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <p class="title">2) Первичный расчёт коэффициента пористости</p>
+      <ul class="list">
+        <li class="list__item">
+          <div style="font-weight:600; font-size:1.2rem;">Шаг 1. Вес на метр погонный</div>
+          <div class="formula__design">W'<sub>act</sub> = W<sub>act</sub> × 1000 / l<sub>act</sub></div>
+          <div class="description">W<sub>act</sub> (г) - вес отобранного образца</div>
+          <input id="actual__weight" type="number" placeholder="масса образца [г]">
+          <div class="description">l<sub>act</sub> (мм) - длина отобранного образца</div>
+          <input id="actual__length" type="number" placeholder="длина образца [мм]">
+          <div class="input-group" style="margin-top:1.2rem;">
+            <span class="volume">W'<sub>act</sub> =</span>
+            <input id="w__actual--one-metr" type="number" placeholder="г/м" readonly style="background:#ecf5fd;">
+          </div>
+        </li>
+
+        <li class="list__item">
+          <div style="font-weight:600; font-size:1.2rem;">Шаг 2. Пересчёт к номинальной площади</div>
+          <div class="formula__design">W''<sub>act</sub> = W'<sub>act</sub> × S<sub>spec</sub> / S<sub>act</sub></div>
+          <div class="description">S<sub>spec</sub> (мм²) - общая площадь согласно спецификации</div>
+          <input id="spec__area" type="number" placeholder="Площадь по спеке [мм²]">
+          <div class="description">S<sub>act</sub> (мм²) - общая площадь отобранного образца (оффлайн профилометр)</div>
+          <input id="actual__area" type="number" placeholder="Площадь образца [мм²]">
+          <div class="input-group">
+            <span class="volume">W''<sub>act</sub> =</span>
+            <input id="w__actual--aproved-spec" type="number" placeholder="г/м" readonly style="background:#ecf5fd;">
+          </div>
+        </li>
+
+        <li class="list__item">
+          <div style="font-weight:600; font-size:1.2rem;">Шаг 3. Компоненты треда и плотность экструзии</div>
+          <p class="description">Tread состоит из 3-ех компонентов: cap, base, wing. Соотношение площадей по чертежу:</p>
+          <div class="formula__design">S<sub>spec</sub> = S<sub>cap</sub> + S<sub>base</sub> + S<sub>wing</sub></div>
+
+          <img src="img/profileDS.png" class="image-placeholder" style="max-width: 1000px;" alt="profile diagram">
+
+          <p class="description">Принимаем, что фактические пропорции площадей соответствуют спецификации. Тогда разница веса ∆W приходится на Cap.</p>
+          <div class="formula__design" style="margin:0.5rem 0;">W'<sub>cap</sub> = W<sub>cap</sub> + ∆W, где ∆W = W''<sub>act</sub> - W<sub>spec</sub></div>
+
+          <div class="description">W<sub>spec</sub> (г) - номинальный вес погонного метра согласно спецификации</div>
+          <input id="w__specification" type="number" placeholder="Вес согласно спеки [г]">
+
+          <div class="input-group" style="margin-top:0.8rem;">
+            <span class="volume">∆W =</span>
+            <input id="w__delta" type="number" placeholder="г" readonly style="background:#ecf5fd;">
+          </div>
+
+          <div class="formula__design" style="margin:1rem 0;">ρ<sub>экструзии</sub> = (W<sub>cap</sub> + ∆W) / S<sub>cap</sub></div>
+
+          <div class="description">S<sub>cap</sub> (мм²) - площадь cap согласно спецификации</div>
+          <input id="s__cap" type="number" placeholder="Площадь cap по спеке [мм²]">
+
+          <div class="description">W<sub>cap</sub> (г) - масса cap согласно спецификации</div>
+          <input id="w__cap" type="number" placeholder="Вес cap по спеке [г]">
+
+          <div class="input-group">
+            <span class="volume">ρ<sub>экструзии</sub> =</span>
+            <input id="den__extr" type="number" placeholder="г/мм³" readonly style="background:#ecf5fd;">
+          </div>
+
+          <div class="description">ρ<sub>смеси</sub> (г/мм³) - плотность смеси (можно взять в QDV)</div>
+          <input id="den__compound" type="number" placeholder="Плотность смеси [г/мм³]">
+        </li>
+      </ul>
+    </div>
+
+    <div class="result-section">
+      <h3 class="result-title">⚡ Коэффициент пористости = ρ<sub>экструзии</sub> / ρ<sub>смеси</sub></h3>
+      <div class="input-group" style="justify-content: center; margin: 1.5rem 0 0.5rem;">
+        <span class="volume" style="background: #c1ddf7; padding: 0.8rem 2rem; border-radius: 4rem 0 0 4rem;">K<sub>p</sub> =</span>
+        <input id="k__porosity" type="number" placeholder="0.00" readonly style="background:#e2f0ff; font-size:1.5rem; font-weight:700; width:180px; border-radius:0 4rem 4rem 0; text-align:center;">
+      </div>
+      <div style="text-align: center; color:#1a5680;">* обновится после заполнения всех полей</div>
+    </div>
+
+    <!-- Кнопка сохранения замера (ПЕРЕНЕСЕНА ВНИЗ) -->
+    <div style="text-align: center;">
+      <button id="saveMeasurementBtn" class="save-btn">💾 СОХРАНИТЬ ТЕКУЩИЙ ЗАМЕР В ИСТОРИЮ</button>
+    </div>
+    
+    <div class="footer-buttons">
+      <button class="delete-btn" onclick="clearStoredData(); location.reload();" style=" border: 1px solid #ccc; padding: 0.5rem 1rem; border-radius: 2rem; cursor: pointer;">
+        Очистить сохраненные данные
+      </button>
+    </div>
+  </div>
+
+  <!-- Firebase и скрипты -->
+  <script type="module" src="./js/firebase.js"></script>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
